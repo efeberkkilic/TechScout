@@ -14,10 +14,6 @@ TechScout is a React and TypeScript dashboard for following recent releases from
 
 ![TechScout release detail view](docs/images/release-details.png)
 
-### Loading state
-
-![TechScout dashboard loading the latest releases](docs/images/dashboard-overview.png)
-
 ## Features
 
 - Releases published during the last 90 days
