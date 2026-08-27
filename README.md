@@ -99,8 +99,7 @@ Release and translation caches are stored in the browser's `localStorage`. The p
 
 ## License
 
-No open-source license has been selected yet. A public GitHub repository is viewable, but that alone does not grant permission to reuse, modify, or redistribute the code. Add a license before presenting the project as open source.
-
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details
 ---
 
 ## Türkçe
@@ -202,4 +201,4 @@ Sürüm ve çeviri önbellekleri tarayıcının `localStorage` alanında tutulur
 
 ## Lisans
 
-Henüz bir açık kaynak lisansı seçilmemiştir. Bir GitHub reposunun public olması kodun yeniden kullanılması, değiştirilmesi veya dağıtılması için tek başına izin vermez. Projeyi açık kaynak olarak sunmadan önce bir lisans ekleyin.
+Bu proje MIT Lisansı ile lisanslanmıştır. Ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
