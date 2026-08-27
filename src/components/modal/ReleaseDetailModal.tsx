@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ReleaseItem } from '../../types/release';
 import { useLanguage } from '../../context/LanguageContext';
 import { formatDate } from '../../utils/dateUtils';
 import { renderMarkdownToHtml } from '../../utils/markdownParser';
-import { geminiService } from '../../services/geminiService';
 import { StarRatingBadge } from '../common/StarRatingBadge';
 import { 
   X, 
@@ -11,11 +10,6 @@ import {
   Sparkles, 
   Tag, 
   Calendar, 
-  Code2, 
-  Copy, 
-  Check, 
-  Loader2,
-  FileText,
   Terminal,
   FlaskConical,
   Zap
@@ -30,11 +24,6 @@ export const ReleaseDetailModal: React.FC<ReleaseDetailModalProps> = ({ item, on
   const { language } = useLanguage();
   const isTr = language === 'tr';
 
-  const [activeTab, setActiveTab] = useState<'changelog' | 'code'>('changelog');
-  const [codeSnippet, setCodeSnippet] = useState<string | null>(null);
-  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
-
   // Close on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,10 +33,6 @@ export const ReleaseDetailModal: React.FC<ReleaseDetailModalProps> = ({ item, on
     if (item) {
       document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
-      setActiveTab('changelog');
-      setCodeSnippet(null);
-      setIsGeneratingCode(false);
-      setIsCopied(false);
     }
 
     return () => {
@@ -66,33 +51,6 @@ export const ReleaseDetailModal: React.FC<ReleaseDetailModalProps> = ({ item, on
     ? (item.developerImpactTr || item.importanceReasonTr || item.developerImpactEn || item.importanceReasonEn)
     : (item.developerImpactEn || item.importanceReasonEn);
   const bodyContent = (isTr && item.translatedBody) ? item.translatedBody : item.body;
-
-  const handleGenerateCode = async () => {
-    setActiveTab('code');
-    if (codeSnippet) return;
-
-    setIsGeneratingCode(true);
-    try {
-      const snippet = await geminiService.generateCodeSnippet(item, language);
-      setCodeSnippet(snippet);
-    } catch (err) {
-      console.error('Failed to generate code snippet:', err);
-    } finally {
-      setIsGeneratingCode(false);
-    }
-  };
-
-  const handleCopyCode = async () => {
-    if (!codeSnippet) return;
-    const cleanCode = codeSnippet.replace(/```[a-z]*\n?/gi, '').replace(/```$/gi, '').trim();
-    try {
-      await navigator.clipboard.writeText(cleanCode);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy code snippet:', err);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
@@ -164,61 +122,11 @@ export const ReleaseDetailModal: React.FC<ReleaseDetailModalProps> = ({ item, on
           </button>
         </div>
 
-        {/* Action Bar / Tabs */}
-        <div className="flex items-center justify-between px-6 py-2.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/30">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab('changelog')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === 'changelog'
-                  ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm border border-zinc-200 dark:border-zinc-700'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>{isTr ? 'Sürüm Notları (Changelog)' : 'Release Changelog'}</span>
-            </button>
-
-            <button
-              onClick={handleGenerateCode}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                activeTab === 'code'
-                  ? 'bg-white dark:bg-zinc-800 text-brand-600 dark:text-brand-400 shadow-sm border border-zinc-200 dark:border-zinc-700'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-brand-600 dark:hover:text-brand-400'
-              }`}
-            >
-              <Code2 className="w-3.5 h-3.5 text-brand-500" />
-              <span>{isTr ? '⚡ AI Kod / Geçiş Örneği' : '⚡ AI Code Snippet'}</span>
-            </button>
-          </div>
-
-          {activeTab === 'code' && codeSnippet && (
-            <button
-              onClick={handleCopyCode}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 transition-colors"
-            >
-              {isCopied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>{isTr ? 'Kopyalandı' : 'Copied'}</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>{isTr ? 'Kodu Kopyala' : 'Copy Code'}</span>
-                </>
-              )}
-            </button>
-          )}
-        </div>
-
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           
-          {/* TAB 1: CHANGELOG VIEW */}
-          {activeTab === 'changelog' && (
-            <>
-              {/* Structured AI Overview Box: Ne Değişti + Geliştiriciye Etkisi */}
+          {/* Release overview */}
+              {/* Structured Overview Box: Ne Değişti + Geliştiriciye Etkisi */}
               <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80 space-y-3">
                 
                 {/* Ne Değişti */}
@@ -250,57 +158,6 @@ export const ReleaseDetailModal: React.FC<ReleaseDetailModalProps> = ({ item, on
                 className="prose dark:prose-invert max-w-none text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed font-sans"
                 dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(bodyContent) }}
               />
-            </>
-          )}
-
-          {/* TAB 2: AI CODE SNIPPET VIEW */}
-          {activeTab === 'code' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {isTr ? 'Gemini AI Kod & Geçiş Rehberi' : 'Gemini AI Migration & Usage Example'}
-                  </span>
-                </div>
-                <span className="text-xs text-zinc-400 font-mono">
-                  {item.repoName} ({item.tagName})
-                </span>
-              </div>
-
-              {isGeneratingCode ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400">
-                  <Loader2 className="w-7 h-7 animate-spin text-brand-400 mb-3" />
-                  <p className="text-sm font-medium text-zinc-200">
-                    {isTr ? 'Gemini AI kod örneği hazırlıyor...' : 'Gemini AI is generating code snippet...'}
-                  </p>
-                  <p className="text-xs text-zinc-500 mt-1">
-                    {isTr ? 'Sürüm notları taranıp örnek kod inşa ediliyor.' : 'Analyzing changelog and structuring practical usage.'}
-                  </p>
-                </div>
-              ) : codeSnippet ? (
-                <div 
-                  className="prose dark:prose-invert max-w-none text-sm font-mono leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(codeSnippet) }}
-                />
-              ) : (
-                <div className="text-center py-12 px-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-dashed border-zinc-300 dark:border-zinc-700">
-                  <Code2 className="w-8 h-8 text-zinc-400 mx-auto mb-2" />
-                  <p className="text-xs text-zinc-500">
-                    {isTr ? 'Bu sürüm için pratik kod örneği oluşturmak için butona tıklayın.' : 'Click to generate a practical code snippet for this release.'}
-                  </p>
-                  <button
-                    onClick={handleGenerateCode}
-                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white transition-colors shadow-sm"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>{isTr ? 'Örnek Kod Oluştur' : 'Generate Code Snippet'}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
         </div>
 
         {/* Footer */}
@@ -316,15 +173,6 @@ export const ReleaseDetailModal: React.FC<ReleaseDetailModalProps> = ({ item, on
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
 
-            {activeTab !== 'code' && (
-              <button
-                onClick={handleGenerateCode}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/50 dark:hover:bg-brand-900/50 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-900/60 transition-colors"
-              >
-                <Code2 className="w-3.5 h-3.5 text-brand-500" />
-                <span>{isTr ? '⚡ Kod Örneği Göster' : '⚡ Code Example'}</span>
-              </button>
-            )}
           </div>
 
           <button

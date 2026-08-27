@@ -1,6 +1,6 @@
 # TechScout
 
-TechScout is a React and TypeScript dashboard for following recent releases from popular software projects. It fetches release data from GitHub, organizes it by ecosystem, and optionally uses Google Gemini for Turkish translations and practical code examples.
+TechScout is a React and TypeScript dashboard for following recent releases from popular software projects. It fetches public release data from GitHub and organizes it by ecosystem.
 
 > Türkçe dokümantasyon için [aşağıya geçin](#türkçe).
 
@@ -21,15 +21,12 @@ TechScout is a React and TypeScript dashboard for following recent releases from
 - Category, technology, importance, and keyword filters
 - English and Turkish interface
 - Light and dark themes
-- Optional Gemini translations and code examples
 - Five-minute browser cache for release data
 
 ## Requirements
 
 - Node.js 18 or newer
 - npm
-- Optional: a GitHub personal access token for a higher API rate limit
-- Optional: a Google Gemini API key for AI features
 
 ## Quick start
 
@@ -42,37 +39,7 @@ npm run dev
 
 Open the URL printed by Vite, normally <http://localhost:5173>.
 
-The application works without API credentials. It uses GitHub's unauthenticated public API limits, while Gemini-powered features remain disabled.
-
-## Optional environment variables
-
-Create a local environment file only if you need authenticated GitHub requests or Gemini features.
-
-macOS/Linux:
-
-```bash
-cp .env.example .env.local
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env.local
-```
-
-Then fill in only the values you need:
-
-```dotenv
-VITE_GITHUB_TOKEN=
-VITE_GEMINI_API_KEY=
-```
-
-| Variable | Required | Purpose |
-| --- | --- | --- |
-| `VITE_GITHUB_TOKEN` | No | Raises the GitHub API rate limit for local use. |
-| `VITE_GEMINI_API_KEY` | No | Enables AI translation and code-example generation. |
-
-Environment files are ignored by Git. Never commit `.env`, `.env.local`, tokens, or API keys.
+The application is intentionally credential-free and uses GitHub's unauthenticated public API limits.
 
 ## Commands
 
@@ -84,11 +51,9 @@ npm run preview  # Preview the production build locally
 
 ## Public deployment and security
 
-For a credential-free public deployment, build the project without an environment file. Release browsing will continue to work through GitHub's unauthenticated public API, but Gemini features will be unavailable.
+The frontend does not accept API keys or tokens. It only calls GitHub's unauthenticated public API, so a production build cannot accidentally embed project credentials.
 
-Variables prefixed with `VITE_` are embedded in the browser bundle. They are not secrets after a build. Do not configure a GitHub token or Gemini API key in GitHub Pages, Vercel, Netlify, or another public frontend host.
-
-If a public deployment needs authenticated GitHub access or Gemini features, move those API requests behind a backend or serverless endpoint. Store credentials only in that server-side environment and add rate limiting before exposing the endpoint.
+If authenticated GitHub access or AI features are added later, route those requests through a backend or serverless endpoint. Store credentials only in the server-side environment and add authentication and rate limiting before exposing the endpoint.
 
 ## Project structure
 
@@ -97,7 +62,7 @@ src/
   components/   UI components
   config/       Repository and API endpoint configuration
   context/      Language and theme state
-  services/     GitHub and Gemini clients
+  services/     Public GitHub API client
   types/        TypeScript types
   utils/        Date and Markdown helpers
 public/         Static assets
@@ -105,7 +70,7 @@ public/         Static assets
 
 ## Data and privacy
 
-Release and translation caches are stored in the browser's `localStorage`. The project does not send user data to its own server. When enabled, GitHub and Gemini requests are sent directly from the browser to those providers.
+Release data is cached in the browser's `localStorage`. The project does not send user data to its own server.
 
 ## License
 
@@ -114,7 +79,7 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## Türkçe
 
-TechScout, popüler yazılım projelerinin güncel sürümlerini takip etmeyi sağlayan React ve TypeScript tabanlı bir geliştirici panosudur. Sürüm verilerini GitHub'dan alır, ekosistemlere göre düzenler ve isteğe bağlı olarak Türkçe çeviri ile pratik kod örnekleri için Google Gemini kullanır.
+TechScout, popüler yazılım projelerinin güncel sürümlerini takip etmeyi sağlayan React ve TypeScript tabanlı bir geliştirici panosudur. Public sürüm verilerini GitHub'dan alır ve ekosistemlere göre düzenler.
 
 ## Özellikler
 
@@ -123,15 +88,12 @@ TechScout, popüler yazılım projelerinin güncel sürümlerini takip etmeyi sa
 - Kategori, teknoloji, önem seviyesi ve anahtar kelime filtreleri
 - Türkçe ve İngilizce arayüz
 - Açık ve koyu tema
-- İsteğe bağlı Gemini çevirileri ve kod örnekleri
 - Sürüm verileri için beş dakikalık tarayıcı önbelleği
 
 ## Gereksinimler
 
 - Node.js 18 veya üzeri
 - npm
-- İsteğe bağlı: daha yüksek API limiti için GitHub personal access token
-- İsteğe bağlı: yapay zekâ özellikleri için Google Gemini API anahtarı
 
 ## Hızlı başlangıç
 
@@ -144,37 +106,7 @@ npm run dev
 
 Vite'ın terminalde gösterdiği adresi açın; bu adres normalde <http://localhost:5173> olur.
 
-Uygulama API anahtarı olmadan çalışır. GitHub'ın kimlik doğrulamasız public API limitini kullanır; Gemini destekli özellikler ise devre dışı kalır.
-
-## İsteğe bağlı ortam değişkenleri
-
-Yalnızca kimlik doğrulamalı GitHub isteklerine veya Gemini özelliklerine ihtiyacınız varsa yerel bir ortam dosyası oluşturun.
-
-macOS/Linux:
-
-```bash
-cp .env.example .env.local
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env.local
-```
-
-Ardından yalnızca ihtiyaç duyduğunuz değerleri doldurun:
-
-```dotenv
-VITE_GITHUB_TOKEN=
-VITE_GEMINI_API_KEY=
-```
-
-| Değişken | Zorunlu | Amaç |
-| --- | --- | --- |
-| `VITE_GITHUB_TOKEN` | Hayır | Yerel kullanımda GitHub API istek limitini yükseltir. |
-| `VITE_GEMINI_API_KEY` | Hayır | Yapay zekâ çevirilerini ve kod örneği üretimini etkinleştirir. |
-
-Ortam dosyaları Git tarafından yok sayılır. `.env`, `.env.local`, token veya API anahtarlarını asla commit etmeyin.
+Uygulama bilinçli olarak hiçbir kimlik bilgisi kullanmaz ve GitHub'ın kimlik doğrulamasız public API limitleriyle çalışır.
 
 ## Komutlar
 
@@ -186,11 +118,9 @@ npm run preview  # Production çıktısını yerelde önizler
 
 ## Public yayın ve güvenlik
 
-Anahtarsız bir public yayın için projeyi ortam dosyası olmadan derleyin. Sürüm görüntüleme GitHub'ın kimlik doğrulamasız public API'si üzerinden çalışmaya devam eder; Gemini özellikleri kullanılamaz.
+Frontend API anahtarı veya token kabul etmez. Yalnızca GitHub'ın kimlik doğrulamasız public API'sini çağırdığı için production derlemesine yanlışlıkla proje kimlik bilgisi gömülemez.
 
-`VITE_` önekli değişkenler tarayıcı paketine gömülür. Derlemeden sonra gizli değildir. GitHub Pages, Vercel, Netlify veya başka bir public frontend servisinde GitHub token ya da Gemini API anahtarı tanımlamayın.
-
-Public yayında kimlik doğrulamalı GitHub erişimi veya Gemini özellikleri gerekiyorsa bu API çağrılarını bir backend ya da serverless endpoint arkasına taşıyın. Anahtarları yalnızca sunucu ortamında saklayın ve endpoint'i yayımlamadan önce istek sınırlaması ekleyin.
+İleride kimlik doğrulamalı GitHub erişimi veya yapay zekâ özellikleri eklenirse bu istekleri bir backend ya da serverless endpoint arkasına taşıyın. Anahtarları yalnızca sunucu ortamında saklayın; endpoint'e kimlik doğrulama ve istek sınırlaması ekleyin.
 
 ## Proje yapısı
 
@@ -199,7 +129,7 @@ src/
   components/   Arayüz bileşenleri
   config/       Repository ve API endpoint yapılandırması
   context/      Dil ve tema durumu
-  services/     GitHub ve Gemini istemcileri
+  services/     Public GitHub API istemcisi
   types/        TypeScript tipleri
   utils/        Tarih ve Markdown yardımcıları
 public/         Statik dosyalar
@@ -207,7 +137,7 @@ public/         Statik dosyalar
 
 ## Veri ve gizlilik
 
-Sürüm ve çeviri önbellekleri tarayıcının `localStorage` alanında tutulur. Proje kendi sunucusuna kullanıcı verisi göndermez. Etkinleştirildiğinde GitHub ve Gemini istekleri tarayıcıdan doğrudan ilgili sağlayıcılara gönderilir.
+Sürüm verileri tarayıcının `localStorage` alanında önbelleğe alınır. Proje kendi sunucusuna kullanıcı verisi göndermez.
 
 ## Lisans
 

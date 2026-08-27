@@ -6,8 +6,7 @@ import {
   Sun, 
   Moon, 
   Languages, 
-  RotateCw, 
-  Sparkles 
+  RotateCw
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -18,7 +17,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onRefresh, isRefreshing }) => {
   const { theme, toggleTheme } = useTheme();
-  const { language, toggleLanguage, isTranslating, translationProgress } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-[#0c0d0e]/80 border-b border-zinc-200/80 dark:border-zinc-800/80 transition-colors duration-200">
@@ -44,14 +43,6 @@ export const Header: React.FC<HeaderProps> = ({ onRefresh, isRefreshing }) => {
           {/* Actions: Translation, Theme, Refresh */}
           <div className="flex items-center gap-2">
             
-            {/* Translation Status Badge */}
-            {isTranslating && (
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50 animate-pulse">
-                <Sparkles className="w-3.5 h-3.5" />
-                Gemini Türkçe Çeviri ({translationProgress.completed}/{translationProgress.total})...
-              </span>
-            )}
-
             {/* Language Toggle (English / Türkçe) */}
             <button
               onClick={() => toggleLanguage()}

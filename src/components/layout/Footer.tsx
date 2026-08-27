@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { Github, Sparkles } from 'lucide-react';
+import { Github, ShieldCheck } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { language } = useLanguage();
@@ -60,7 +60,7 @@ export const Footer: React.FC = () => {
               <span className="text-zinc-700 dark:text-zinc-300">GitHub API</span>
               <span className="text-zinc-400 dark:text-zinc-600">·</span>
               <span className="font-semibold text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Gemini AI
+                <ShieldCheck className="w-3 h-3" /> Credential-free
               </span>
             </span>
 

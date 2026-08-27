@@ -6,7 +6,17 @@ node_modules/
 # Environment and keys
 .env
 .env.*
-!.env.example
+.envrc
+.dev.vars
+credentials.json
+secrets.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
 
 # Production build
 dist/
