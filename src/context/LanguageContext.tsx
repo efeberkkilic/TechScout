@@ -6,6 +6,10 @@ interface LanguageContextType {
   language: Language;
   toggleLanguage: () => void;
   setLanguage: (lang: Language) => void;
+  isTranslating: boolean;
+  setIsTranslating: (val: boolean) => void;
+  translationProgress: { completed: number; total: number };
+  setTranslationProgress: (val: { completed: number; total: number }) => void;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -19,6 +23,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return API_CONFIG.DEFAULT_LANGUAGE;
     }
   });
+
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationProgress, setTranslationProgress] = useState({ completed: 0, total: 0 });
 
   useEffect(() => {
     try {
@@ -42,7 +49,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       value={{
         language,
         toggleLanguage,
-        setLanguage
+        setLanguage,
+        isTranslating,
+        setIsTranslating,
+        translationProgress,
+        setTranslationProgress
       }}
     >
       {children}

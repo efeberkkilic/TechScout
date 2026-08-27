@@ -9,10 +9,14 @@ const THREE_MONTHS_MS = THREE_MONTHS_DAYS * 24 * 60 * 60 * 1000; // 90 days
 
 class GitHubService {
   private getHeaders(): Record<string, string> {
-    return {
+    const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',
       'User-Agent': 'TechScout-App'
     };
+    if (API_CONFIG.GITHUB_TOKEN && API_CONFIG.GITHUB_TOKEN.trim() !== '') {
+      headers['Authorization'] = `token ${API_CONFIG.GITHUB_TOKEN.trim()}`;
+    }
+    return headers;
   }
 
   public async fetchAllReleases(forceRefresh = false): Promise<ReleaseItem[]> {

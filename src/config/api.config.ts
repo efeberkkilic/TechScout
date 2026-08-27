@@ -1,6 +1,14 @@
 import { Category, RepositoryConfig } from '../types/release';
 
 export const API_CONFIG = {
+  // API Credentials
+  GITHUB_TOKEN: import.meta.env.VITE_GITHUB_TOKEN || "",
+  GEMINI_API_KEY: import.meta.env.VITE_GEMINI_API_KEY || "",
+
+  // Gemini API Endpoints
+  GEMINI_API_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent",
+  GEMINI_API_FALLBACK_URL: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
+
   // Defaults
   DEFAULT_THEME: "dark" as const,
   DEFAULT_LANGUAGE: "en" as const,

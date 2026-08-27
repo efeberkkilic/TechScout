@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { CategoryId, ReleaseItem, ImportanceLevel } from './types/release';
 import { API_CONFIG } from './config/api.config';
 import { githubService } from './services/githubService';
+import { geminiService } from './services/geminiService';
 import { useLanguage } from './context/LanguageContext';
 
 // Layout Components
@@ -21,7 +22,7 @@ import { ReleaseDetailModal } from './components/modal/ReleaseDetailModal';
 import { Inbox, Loader2 } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { language } = useLanguage();
+  const { language, setIsTranslating, setTranslationProgress } = useLanguage();
   const isTr = language === 'tr';
 
   const [releases, setReleases] = useState<ReleaseItem[]>([]);
@@ -35,10 +36,30 @@ export const App: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const isTrRef = useRef(isTr);
+  const translationSignatureRef = useRef<string | null>(null);
+  const translationInFlightRef = useRef(false);
 
   useEffect(() => {
     isTrRef.current = isTr;
   }, [isTr]);
+
+  const translateReleases = useCallback(async (items: ReleaseItem[]) => {
+    if (!isTr || items.length === 0 || translationInFlightRef.current) return;
+
+    translationInFlightRef.current = true;
+    setIsTranslating(true);
+    try {
+      await geminiService.batchTranslate(items, (completed, total) => {
+        setTranslationProgress({ completed, total });
+        setReleases([...items]);
+      });
+    } catch (err) {
+      console.error('Batch translation error:', err);
+    } finally {
+      translationInFlightRef.current = false;
+      setIsTranslating(false);
+    }
+  }, [isTr, setIsTranslating, setTranslationProgress]);
 
   const loadData = useCallback(async (forceRefresh = false) => {
     if (forceRefresh) setIsRefreshing(true);
@@ -49,6 +70,7 @@ export const App: React.FC = () => {
 
     try {
       const data = await githubService.fetchAllReleases(forceRefresh);
+      translationSignatureRef.current = null;
       setReleases(data);
     } catch (err) {
       console.error('Failed to load GitHub releases:', err);
@@ -66,6 +88,23 @@ export const App: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!isTr) {
+      translationSignatureRef.current = null;
+      return;
+    }
+
+    if (releases.length === 0) return;
+
+    const signature = releases
+      .map(item => `${item.id}:${item.title}:${item.body.length}`)
+      .join('|');
+
+    if (translationSignatureRef.current === signature) return;
+    translationSignatureRef.current = signature;
+    void translateReleases(releases);
+  }, [isTr, translateReleases, releases]);
 
   // Toggle multi-level selection
   const handleToggleLevel = (level: ImportanceLevel) => {
